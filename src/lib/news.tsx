@@ -53,10 +53,17 @@ export const POSTS: Post[] = [
             <tr><td>Base model</td><td>YOLO26n</td><td>YOLO26x</td></tr>
             <tr><td>Parameters</td><td>2.72 M</td><td>57.07 M</td></tr>
             <tr><td>File size</td><td>5.3 MB</td><td>109 MB</td></tr>
+            <tr><td>LVIS minival AP</td><td>22.2</td><td>31.1</td></tr>
             <tr><td>Weights</td><td>Open</td><td>Closed</td></tr>
           </tbody>
         </table>
-        <p>In a side-by-side on one photo at confidence 0.35, extra-a found 3 objects and extra-b found 11. That is an illustration, not a benchmark. We are running the full LVIS evaluation and will publish the numbers on the model page.</p>
+        <h2>The numbers</h2>
+        <p>We evaluated both models on the 4,809 LVIS minival images with the official LVIS API, using the same images and settings. extra-b scores <strong>31.1 AP</strong>, which is 8.9 ahead of extra-a's 22.2. The gain is biggest on small objects (26.8 against 13.5) and on frequent categories (46.6 against 29.2).</p>
+        <img src="/img/news/extra-b-lvis.webp" alt="LVIS minival box AP: extra-a 22.2 and extra-b 31.1 next to published open-vocabulary detectors" />
+        <h2>What it doesn't fix</h2>
+        <p>extra-b is not better everywhere. On rare categories it scores lower than extra-a (0.4 against 4.4). It is better with people (32.0 AP, up from 18.3), but that is still far below cats, dogs or pizza, so don't rely on it to find or count people.</p>
+        <p>Against published open-vocabulary models, extra-b is ahead of YOLOE-26s (30.8) and Grounding DINO-T (27.4), and behind YOLOE-26m (35.4) and YOLOE-26x (40.6). Those are zero-shot results from their authors, on their own pipelines, so read the chart as context rather than a controlled comparison.</p>
+        <p>One more illustration: on a single photo at confidence 0.35, extra-a found 3 objects and extra-b found 11.</p>
         <p>extra-b's weights are closed. You can run it on affable, from the Playground, the CLI, Python or HTTP, but you can't download it. Use it for pre-annotation in affable studio, and the first draft gets a lot closer.</p>
         <Code>{`import affable\n\nresult = affable.run("affable/extra-b", "photo.jpg", conf=0.35)\nfor d in result["detections"]:\n    print(d["label"], d["score"], d["box"])`}</Code>
         <p><A to="/models/affable/extra-b">Open extra-b</A></p>
