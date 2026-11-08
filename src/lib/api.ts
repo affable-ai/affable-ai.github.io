@@ -13,7 +13,7 @@ export type FileInfo = { path: string; size: number }
 export type Version = { number: number; message: string; params: number; size: number; files: FileInfo[]; created_at: number }
 export type Model = {
   owner: string; owner_avatar: string | null; name: string; slug: string; description: string
-  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; created_at: number; updated_at: number; versions: number; latest: Version | null
+  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; cover: string | null; cover_seed: string | null; created_at: number; updated_at: number; versions: number; latest: Version | null
   history?: Version[]
 }
 export type Profile = { username: string; official: boolean; name: string; avatar: string | null; bio: string; website: string; created_at: number; is_me: boolean; models: Model[] }
@@ -58,6 +58,13 @@ export const api = {
   logout: async () => { try { return await req<{ ok: boolean }>('POST', '/api/auth/logout') } finally { token.set(null) } },
   models: () => req<Model[]>('GET', '/api/models'),
   model: (owner: string, name: string) => req<Model>('GET', `/api/models/${owner}/${name}`),
+  setCoverSeed: (owner: string, name: string, cover_seed: string) => req<Model>('PATCH', `/api/models/${owner}/${name}`, { cover_seed }).then(() => api.model(owner, name)),
+  resetCover: (owner: string, name: string) => req<Model>('DELETE', `/api/models/${owner}/${name}/cover`),
+  uploadCover: async (owner: string, name: string, image: Blob): Promise<Model> => {
+    const r = await fetch(`${API_BASE}/api/models/${owner}/${name}/cover`, { method: 'POST', credentials: STANDALONE ? 'omit' : 'same-origin', headers: authHeaders({ 'content-type': image.type || 'image/jpeg' }), body: image })
+    if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail ?? m } catch { /* ignore */ } throw new ApiError(r.status, m) }
+    return r.json()
+  },
   setDescription: (owner: string, name: string, description: string) => req('PATCH', `/api/models/${owner}/${name}`, { description }),
   setPublic: (owner: string, name: string, pub: boolean) => req('PATCH', `/api/models/${owner}/${name}`, { public: pub }),
   setOpenWeights: (owner: string, name: string, open: boolean) => req('PATCH', `/api/models/${owner}/${name}`, { open_weights: open }),

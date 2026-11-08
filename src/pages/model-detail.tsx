@@ -10,6 +10,7 @@ import { SiteFooter, SiteHeader } from '@/components/site-header'
 import { Avatar } from '@/components/avatar'
 import { OfficialBadge } from '@/components/official-badge'
 import { Readme } from '@/components/readme'
+import { CoverArtSettings } from '@/components/cover-art-settings'
 import { Playground } from '@/components/playground'
 import { CopyCode } from '@/components/copy-code'
 import { Button } from '@/components/ui/button'
@@ -236,6 +237,7 @@ export default function ModelDetail() {
         {tab === 'settings' && mine && (
           <section className="space-y-10">
             <Heading>Settings</Heading>
+            <CoverArtSettings m={m} onChange={(next) => setM({ ...m, cover: next.cover, cover_seed: next.cover_seed })} />
             <div className="grid max-w-2xl gap-3">
               <label className="text-sm font-medium" htmlFor="desc">Description</label>
               <div className="flex gap-2">
