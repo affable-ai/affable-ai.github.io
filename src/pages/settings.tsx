@@ -127,7 +127,7 @@ export default function SettingsPage() {
           </form>
         </Section>
 
-        <Section title="Phone approval" desc="Make your iPhone approve every sign-in, with the Discovery app."><SecurityCard /></Section>
+        <Section title="Phone approval" desc="Make your iPhone approve every sign-in, with the Discovery app.">{u.official || u.phone_2fa ? <SecurityCard /> : <p className="text-sm text-muted-foreground">Phone approval is only available to official accounts for now.</p>}</Section>
         <Section title="Sessions" desc="Sign out everywhere except this browser.">
           <Button variant="outline" onClick={async () => { const r = await api.logoutOthers(); toast.success(r.signed_out ? `Signed out ${r.signed_out} other session(s)` : 'No other sessions') }}>Sign out other devices</Button>
         </Section>
