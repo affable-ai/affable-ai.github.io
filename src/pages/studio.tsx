@@ -116,10 +116,42 @@ export default function Studio() {
                 ]).map(([t, d], i) => (
                   <li key={i} className="flex gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full border text-xs">{i + 1}</span><span><strong>{t}</strong> <span className="text-muted-foreground">{d}</span></span></li>
                 ))}
-                <li className="flex gap-3 pt-2 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />{os === 'mac' ? 'Mac with Apple silicon only for now.' : 'Windows 10 or 11, 64-bit Intel or AMD. Offline models run on the CPU.'}</li>
-                <li className="flex gap-3 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />After this, affable studio updates itself: Preferences, Updates.</li>
+                <li className="flex gap-3 pt-2 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />{os === 'mac' ? 'Needs a Mac with Apple silicon (M1 or newer). Intel Macs aren’t supported yet.' : 'Needs Windows 10 or 11, 64-bit (Intel or AMD). Offline models run on the CPU.'}</li>
+                <li className="flex gap-3 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />After this, affable studio keeps itself up to date. It checks for new versions and installs them when you choose, under Preferences, Updates. Rarely, an update is required (a security fix, say) and has to be installed before you can keep using it.</li>
               </ol>
             </div>
+          </div>
+        </section>
+        <section className="border-t">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Minimum requirements</h2>
+            <p className="mt-3 max-w-2xl text-muted-foreground">affable studio runs on your own machine. Cloud models need an internet connection; offline models and your labels don’t.</p>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              {([
+                ['mac', 'Mac', icon.mac, [
+                  ['System', 'macOS 13 (Ventura) or newer'],
+                  ['Processor', 'Apple silicon (M1 or newer). Intel Macs aren’t supported yet'],
+                  ['Memory', '4 GB (8 GB or more recommended for large offline models)'],
+                  ['Disk space', '1 GB free: about 350 MB for the app, plus room for models you download'],
+                  ['Display', '1280 × 720 or larger'],
+                ]],
+                ['win', 'Windows', icon.win, [
+                  ['System', 'Windows 10 or Windows 11, 64-bit'],
+                  ['Processor', '64-bit Intel or AMD. Offline models run on the CPU'],
+                  ['Memory', '4 GB (8 GB or more recommended for large offline models)'],
+                  ['Disk space', '1 GB free: about 430 MB for the app, plus room for models you download'],
+                  ['Display', '1280 × 720 or larger'],
+                ]],
+              ] as const).map(([k, name, ic, rows]) => (
+                <div key={k} className="rounded-xl border bg-card/40 p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold [&_svg]:size-5">{ic}{name}</h3>
+                  <dl className="mt-4 divide-y text-sm">
+                    {rows.map(([t, d]) => <div key={t} className="grid grid-cols-[6.5rem_1fr] gap-3 py-2.5"><dt className="text-muted-foreground">{t}</dt><dd>{d}</dd></div>)}
+                  </dl>
+                </div>
+              ))}
+            </div>
+            <p className="mt-6 text-sm text-muted-foreground">An internet connection is needed to sign in, to run cloud models, to browse and download models, and to update. Everything else works offline.</p>
           </div>
         </section>
       </main>
