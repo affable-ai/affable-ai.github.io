@@ -1,0 +1,25 @@
+affable website: source-available license
+
+Copyright (c) 2026 affable. All rights reserved.
+
+This source code is published so that people can read it, learn from it, and check how the site works.
+It is NOT open source. You are not given the rights an open source license would give.
+
+You MAY:
+  - read and study the code;
+  - run it on your own computer, for personal evaluation only;
+  - quote small excerpts with attribution, for review, criticism or teaching.
+
+You MAY NOT, without written permission from affable:
+  - copy, republish or redistribute this code, in whole or in part;
+  - host or deploy this site, or a site derived from it, for anyone else, publicly or privately;
+  - use the code, design, artwork, wordmark, logo or generated "ink art" system in your own product or project;
+  - create derivative works, or use the code to train or fine-tune a machine learning model;
+  - remove or alter this notice.
+
+The affable name, wordmark and logo are not licensed for any use.
+
+The code is provided "as is", without warranty of any kind. affable is not liable for any damages arising
+from its use.
+
+This license is a plain-language notice, not legal advice. For permission, open an issue on this repository.
