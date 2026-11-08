@@ -14,6 +14,7 @@ const sections = [
   { id: 'segmentation', title: 'Segmentation' },
   { id: 'promptable', title: 'Promptable models' },
   { id: 'visibility', title: 'Visibility & weights' },
+  { id: 'phone', title: 'Phone approval' },
   { id: 'limits', title: 'Limits' },
 ]
 
@@ -73,6 +74,11 @@ export default function Docs() {
           <section id="visibility" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Visibility &amp; weights</h2>
             <P>New models are private. Add <C>--public</C> to list one on <Link to="/discover" className="text-foreground underline underline-offset-4">Explore</Link>. A public model can be run by anyone. Whether people can also <em>download</em> it is a separate choice: add <C>--open-weights</C> to allow downloads, or leave them closed. Both can be changed later in the model's Settings tab.</P>
             <CopyCode>{'$ affable push ./my-model --public --closed-weights\n$ affable push ./my-model --public --open-weights'}</CopyCode></section>
+
+          <section id="phone" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Phone approval</h2>
+            <P>Install <strong className="text-foreground">Discovery</strong> on your iPhone and sign in once. That registers the phone with a key that stays on it. Then turn on <strong className="text-foreground">Phone approval</strong> in <Link to="/dashboard/settings" className="underline underline-offset-4">Settings</Link> (or in Discovery's own Settings). From then on a password is not enough: signing in on the website or in studio shows a QR code, and you scan it with Discovery and tap Approve.</P>
+            <P>You get eight one-time <strong className="text-foreground">recovery codes</strong> when you turn it on. If you lose the phone, a code lets you sign in and turn it off. You can also sign in with no password at all: choose “Sign in with your phone instead” on the login page and scan the code.</P>
+            <P>In studio, <C>Preferences → Phone → Let my phone control this studio</C> lets Discovery list the projects you have opened there and start a labeling job. It is off by default, only reaches folders you have opened in studio, and can be turned off at any time.</P></section>
 
           <section id="limits" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Limits</h2>
             <P>Models can have up to 5 million parameters. The CLI counts them before uploading and the server checks again, so the number can’t be spoofed.</P></section>

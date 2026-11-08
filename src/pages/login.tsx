@@ -5,7 +5,8 @@ import { toast } from 'sonner'
 import { Loader2, Shuffle } from 'lucide-react'
 import { randomUsername } from '@/lib/names'
 import { API_BASE, STANDALONE } from '@/lib/config'
-import { api, ApiError } from '@/lib/api'
+import { api, ApiError, type Challenge } from '@/lib/api'
+import { ApprovalPanel } from '@/components/approval'
 import { useAuth } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,8 +35,11 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [oauth, setOauth] = useState<string[]>([])
+  const [approval, setApproval] = useState<{ ch: Challenge; as?: string } | null>(null)   // waiting for the phone
 
   useEffect(() => { api.providers().then((p) => setOauth(p.oauth)).catch(() => {}) }, [])
+  // coming back from GitHub or Google with phone approval on: the secret is in the URL fragment
+  useEffect(() => { const id = params.get('approve'), s = new URLSearchParams(window.location.hash.slice(1)).get('s'); if (id && s) { setApproval({ ch: { id, secret: s, expires_in: 180 } }); history.replaceState(null, '', window.location.pathname) } }, [params])
   useEffect(() => { const e = params.get('error'); if (e) toast.error(ERRORS[e] ?? 'Sign-in failed') }, [params])
 
   if (!loading && user) return <Navigate to="/dashboard" replace />
@@ -44,10 +48,16 @@ export default function Login() {
     e.preventDefault()
     setBusy(true)
     try {
-      setUser(mode === 'in' ? await api.login(email, password) : await api.register(email, password, username))
+      const r = mode === 'in' ? await api.login(email, password) : await api.register(email, password, username)
+      if ('approval' in r) setApproval({ ch: r.approval, as: email.includes('@') ? email : undefined }); else setUser(r)
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : 'Something went wrong')
     } finally { setBusy(false) }
+  }
+
+  async function phoneSignIn() {
+    setBusy(true)
+    try { setApproval({ ch: await api.qrStart() }) } catch (err) { toast.error(err instanceof ApiError ? err.message : 'Something went wrong') } finally { setBusy(false) }
   }
 
   const provider = (name: 'github' | 'google', label: string, icon: React.ReactNode) => {
@@ -71,6 +81,7 @@ export default function Login() {
           <img src="/wordmark.svg" alt="affable" className="h-7 w-auto" />
         </Link>
 
+        {approval ? <ApprovalPanel challenge={approval.ch} signingIn={approval.as} onDone={(u) => { setApproval(null); setUser(u) }} onCancel={() => setApproval(null)} /> : (
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12">
           <h1 className="text-3xl font-semibold tracking-tight">
             {mode === 'in' ? 'Welcome back' : 'Create your account'}
@@ -116,7 +127,8 @@ export default function Login() {
               {mode === 'in' ? 'Create an account' : 'Sign in'}
             </button>
           </p>
-        </div>
+          {mode === 'in' && <button type="button" className="mt-3 text-center text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground" onClick={phoneSignIn} disabled={busy}>Sign in with your phone instead</button>}
+        </div>)}
       </div>
 
       {/* ------------- art ------------- */}
