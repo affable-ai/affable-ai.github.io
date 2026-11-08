@@ -1,3 +1,4 @@
+import { authHeaders } from '@/lib/api'
 import { API_BASE } from '@/lib/config'
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
@@ -11,7 +12,7 @@ export function Readme({ owner, name, version, path }: { owner: string; name: st
   const [text, setText] = useState<string | null>(null)
   useEffect(() => {
     setText(null)
-    fetch(base + path).then((r) => (r.ok ? r.text() : null)).then(setText).catch(() => setText(null))
+    fetch(base + path, { headers: authHeaders() }).then((r) => (r.ok ? r.text() : null)).then(setText).catch(() => setText(null))
   }, [base, path])
   if (!text) return null
 

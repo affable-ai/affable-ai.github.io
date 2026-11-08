@@ -17,22 +17,15 @@ Browse models, read the docs, and try a model in the Playground.
 This repository is the front end only (React, Vite, Tailwind, shadcn/ui). The accounts, model storage and
 model hosting run on the affable server, which this site reads from over its public API.
 
-Because this site is served from a different address than that server, it is a **public, read-only** copy:
-
-| Works here | Happens on the affable server |
-|---|---|
-| Landing page, docs | Signing in and creating an account |
-| Discover, model pages and READMEs | Dashboard, API keys, settings |
-| Profiles | Pushing and managing your models |
-| Playground (run a public model on an image) | |
-
-"Log in" and dashboard links hand you over to the server's own copy of the site.
+The site is hosted entirely here. The affable server is just an API: it answers requests for things like the
+Discover list, model pages and running a model, and this site shows them. Signing in works with a session token
+the site keeps in your browser and sends to the API, so no cross-site cookies are involved.
 
 ## Run it locally (evaluation only)
 
 ```bash
 npm ci
-npm run dev                                        # uses a local server at 127.0.0.1:8431
+npm run dev                                        # talks to a local API at 127.0.0.1:8431
 VITE_API_BASE=https://your-server npm run build    # point a build at another server
 ```
 

@@ -6,6 +6,5 @@
  */
 export const API_BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? '').replace(/\/+$/, '')
 export const STANDALONE = API_BASE !== ''
-export const APP_URL = API_BASE
 export const apiUrl = (p: string | null | undefined) => (p && p.startsWith('/api') ? API_BASE + p : (p ?? undefined))
 export const siteOrigin = () => API_BASE || window.location.origin

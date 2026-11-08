@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { Loader2, Shuffle } from 'lucide-react'
 import { randomUsername } from '@/lib/names'
+import { API_BASE, STANDALONE } from '@/lib/config'
 import { api, ApiError } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
@@ -55,7 +56,7 @@ export default function Login() {
       <Button
         type="button" variant="outline" className="h-10 w-full justify-center gap-2"
         disabled={!on} title={on ? undefined : `${label} sign-in isn't configured on this server yet`}
-        onClick={() => { window.location.href = `/api/auth/oauth/${name}/start` }}
+        onClick={() => { window.location.href = `${API_BASE}/api/auth/oauth/${name}/start` + (STANDALONE ? `?ret=${encodeURIComponent(window.location.origin)}` : '') }}
       >
         {icon}{label}
       </Button>

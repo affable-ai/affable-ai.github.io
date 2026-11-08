@@ -3,7 +3,7 @@ import { AuthProvider } from '@/lib/auth'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useEffect } from 'react'
-import { APP_URL, STANDALONE } from '@/lib/config'
+import { token } from '@/lib/api'
 import Home from '@/pages/home'
 import Discover from '@/pages/discover'
 import Docs from '@/pages/docs'
@@ -15,10 +15,14 @@ import Keys from '@/pages/keys'
 import SettingsPage from '@/pages/settings'
 import ProfilePage from '@/pages/profile'
 
-/** Account pages live on the server's own copy of the site; the public site hands off to it. */
-function External() {
-  useEffect(() => { window.location.replace(APP_URL + window.location.pathname + window.location.search) }, [])
-  return <div className="grid min-h-svh place-items-center text-sm text-muted-foreground">Taking you to affable…</div>
+/** Where GitHub/Google sign-in lands: the server hands the session token over in the URL fragment. */
+function AuthCallback() {
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.hash.slice(1)).get('token')
+    if (t) token.set(t)
+    window.location.replace(t ? '/dashboard' : '/login?error=oauth_failed')
+  }, [])
+  return <div className="grid min-h-svh place-items-center text-sm text-muted-foreground">Signing you in…</div>
 }
 
 export default function App() {
@@ -28,11 +32,12 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={STANDALONE ? <External /> : <Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/models/:owner/:name" element={<ModelDetail />} />
-          <Route path="/dashboard" element={STANDALONE ? <External /> : <Layout />}>
+          <Route path="/dashboard" element={<Layout />}>
             <Route index element={<Models />} />
             <Route path="keys" element={<Keys />} />
             <Route path="settings" element={<SettingsPage />} />
