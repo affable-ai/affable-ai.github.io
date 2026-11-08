@@ -13,11 +13,11 @@ export type FileInfo = { path: string; size: number }
 export type Version = { number: number; message: string; params: number; size: number; files: FileInfo[]; created_at: number }
 export type Model = {
   owner: string; owner_avatar: string | null; name: string; slug: string; description: string
-  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
+  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; task: 'detect' | 'segment' | null; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
   history?: Version[]
 }
 export type Profile = { username: string; official: boolean; name: string; avatar: string | null; bio: string; website: string; created_at: number; is_me: boolean; models: Model[] }
-export type RunResult = { width: number; height: number; model: string; version: number; conf: number; detections: { class_id: number; label: string; score: number; box: number[] }[] }
+export type RunResult = { width: number; height: number; model: string; version: number; conf: number; task?: 'detect' | 'segment'; detections: { class_id: number; label: string; score: number; box: number[]; polygons?: number[][] }[] }
 export type ApiKey = { id: number; name: string; prefix: string; created_at: number; last_used: number | null }
 
 export class ApiError extends Error {

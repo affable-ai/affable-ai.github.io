@@ -92,7 +92,9 @@ export function Playground({ owner, name }: { owner: string; name: string }) {
                   const [x0, y0, x1, y1] = d.box, sw = Math.max(res.width, res.height) / 300, fs = Math.max(res.width, res.height) / 45
                   return (
                     <g key={i}>
-                      <rect x={x0} y={y0} width={x1 - x0} height={y1 - y0} fill="none" stroke={color(d.class_id)} strokeWidth={sw} />
+                      {d.polygons?.length
+                        ? <path d={d.polygons.map((p) => 'M' + p.reduce((a, v, k) => a + (k % 2 ? ',' : k ? ' L' : '') + v, '') + 'Z').join(' ')} fillRule="evenodd" fill={color(d.class_id)} fillOpacity={0.35} stroke={color(d.class_id)} strokeWidth={sw} strokeLinejoin="round" />
+                        : <rect x={x0} y={y0} width={x1 - x0} height={y1 - y0} fill="none" stroke={color(d.class_id)} strokeWidth={sw} />}
                       <rect x={x0} y={Math.max(0, y0 - fs * 1.3)} width={(d.label.length + 5) * fs * 0.58} height={fs * 1.3} fill={color(d.class_id)} />
                       <text x={x0 + fs * 0.25} y={Math.max(0, y0 - fs * 1.3) + fs} fontSize={fs} fill="#0a0a0a" fontFamily="ui-monospace,monospace" fontWeight={600}>{d.label} {Math.round(d.score * 100)}%</text>
                     </g>

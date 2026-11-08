@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronDown, Clock, Code2, Copy, Cpu, FileText, Folder, GitBranch, HardDrive, Globe, Lock, LockOpen, Play, Settings, Trash2 } from 'lucide-react'
+import { ChevronDown, Clock, Code2, Copy, Cpu, FileText, Folder, GitBranch, HardDrive, Globe, Lock, LockOpen, Play, Settings, Shapes, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { siteOrigin } from '@/lib/config'
 import { api, ago, humanParams, humanSize, type Model } from '@/lib/api'
@@ -156,6 +156,7 @@ export default function ModelDetail() {
           <span className={`size-2 rounded-full ${m.public ? 'bg-emerald-400' : 'bg-muted-foreground'}`} />{m.public ? 'Public' : 'Private'}
         </span>
         {m.runnable && !m.hosted && <span className={chip}><Clock className="size-5" />{m.host_status && (m.host_status.state === 'uploading' || m.host_status.state === 'queued') ? `Preparing on host${m.host_status.state === 'uploading' ? ` (${m.host_status.pct}%)` : ''}` : 'Not hosted yet'}</span>}
+        {m.task === 'segment' && <span className={chip}><Shapes className="size-5" />Segmentation</span>}
         {m.public && <span className={chip}>{m.open_weights ? <LockOpen className="size-5" /> : <Lock className="size-5" />}{m.open_weights ? 'Open weights' : 'Closed weights'}</span>}
         <span className={chip}><Cpu className="size-5" />{humanParams(v.params)} parameters</span>
         <span className={chip}><HardDrive className="size-5" />{humanSize(v.size)}</span>
