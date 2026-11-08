@@ -18,7 +18,7 @@ export function SiteHeader() {
   }, [])
   const submit = (e: FormEvent) => { e.preventDefault(); nav(`/discover${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`); ref.current?.blur() }
 
-  const link = ({ isActive }: { isActive: boolean }) => `text-sm transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`
+  const link = ({ isActive }: { isActive: boolean }) => `text-[13px] sm:text-sm transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-8 sm:px-6">
@@ -28,15 +28,17 @@ export function SiteHeader() {
           <input ref={ref} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') ref.current?.blur() }} placeholder="Search models" className="h-9 w-full rounded-md border border-input bg-input/40 pr-14 pl-9 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30" />
           <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">⌘K</kbd>
         </form>
-        <nav className="flex items-center gap-3 sm:gap-6">
+        <nav className="flex items-center gap-2.5 sm:gap-6">
           <NavLink to="/discover" className={link}>Discover</NavLink>
           <NavLink to="/docs" className={link}>Docs</NavLink>
+          <NavLink to="/newsroom" className={link}>Newsroom</NavLink>
+          <NavLink to="/studio" className={link}>Studio</NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {user ? <Button asChild size="sm"><Link to="/dashboard">Dashboard</Link></Button> : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex"><Link to="/login">Log in</Link></Button>
-              <Button asChild size="sm"><Link to="/login?mode=signup">Get started</Link></Button>
+              <Button asChild size="sm" className="hidden min-[420px]:inline-flex"><Link to="/login?mode=signup">Get started</Link></Button>
             </>
           )}
         </div>
@@ -52,7 +54,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-8 px-4 py-10 sm:px-6">
         <img src="/wordmark.svg" alt="affable" className="h-5 w-auto opacity-80" />
         <div className="flex gap-12">
-          <div className="space-y-2.5"><Link className={a} to="/discover">Discover</Link><Link className={a} to="/docs">Docs</Link></div>
+          <div className="space-y-2.5"><Link className={a} to="/discover">Discover</Link><Link className={a} to="/docs">Docs</Link><Link className={a} to="/newsroom">Newsroom</Link><Link className={a} to="/studio">Studio</Link></div>
           <div className="space-y-2.5"><Link className={a} to="/login">Log in</Link><Link className={a} to="/dashboard/keys">API keys</Link></div>
         </div>
       </div>

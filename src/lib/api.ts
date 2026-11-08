@@ -100,3 +100,6 @@ export function ago(ts: number) {
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`
   return `${Math.floor(s / 86400)}d ago`
 }
+
+export type StudioRelease = { version: string; platform: string; file: string; size: number; sha256: string | null; released: string | null; path: string }
+export const studioRelease = () => req<StudioRelease>('GET', '/api/downloads/studio')

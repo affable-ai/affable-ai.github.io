@@ -7,6 +7,8 @@ import { token } from '@/lib/api'
 import Home from '@/pages/home'
 import Discover from '@/pages/discover'
 import Docs from '@/pages/docs'
+import Newsroom, { NewsPost } from '@/pages/newsroom'
+import Studio from '@/pages/studio'
 import Login from '@/pages/login'
 import Layout from '@/pages/layout'
 import Models from '@/pages/models'
@@ -36,6 +38,9 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/newsroom" element={<Newsroom />} />
+          <Route path="/newsroom/:slug" element={<NewsPost />} />
+          <Route path="/studio" element={<Studio />} />
           <Route path="/models/:owner/:name" element={<ModelDetail />} />
           <Route path="/dashboard" element={<Layout />}>
             <Route index element={<Models />} />
