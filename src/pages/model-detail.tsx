@@ -155,7 +155,7 @@ export default function ModelDetail() {
         <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[15px] font-medium ${m.public ? 'bg-emerald-950/70 text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
           <span className={`size-2 rounded-full ${m.public ? 'bg-emerald-400' : 'bg-muted-foreground'}`} />{m.public ? 'Public' : 'Private'}
         </span>
-        {m.runnable && !m.hosted && <span className={chip}><Clock className="size-5" />Not hosted yet</span>}
+        {m.runnable && !m.hosted && <span className={chip}><Clock className="size-5" />{m.host_status && (m.host_status.state === 'uploading' || m.host_status.state === 'queued') ? `Preparing on host${m.host_status.state === 'uploading' ? ` (${m.host_status.pct}%)` : ''}` : 'Not hosted yet'}</span>}
         {m.public && <span className={chip}>{m.open_weights ? <LockOpen className="size-5" /> : <Lock className="size-5" />}{m.open_weights ? 'Open weights' : 'Closed weights'}</span>}
         <span className={chip}><Cpu className="size-5" />{humanParams(v.params)} parameters</span>
         <span className={chip}><HardDrive className="size-5" />{humanSize(v.size)}</span>

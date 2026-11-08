@@ -13,7 +13,7 @@ export type FileInfo = { path: string; size: number }
 export type Version = { number: number; message: string; params: number; size: number; files: FileInfo[]; created_at: number }
 export type Model = {
   owner: string; owner_avatar: string | null; name: string; slug: string; description: string
-  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; cover: string | null; cover_seed: string | null; created_at: number; updated_at: number; versions: number; latest: Version | null
+  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
   history?: Version[]
 }
 export type Profile = { username: string; official: boolean; name: string; avatar: string | null; bio: string; website: string; created_at: number; is_me: boolean; models: Model[] }
