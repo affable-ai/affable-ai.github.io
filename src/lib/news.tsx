@@ -28,10 +28,14 @@ export const POSTS: Post[] = [
         </ul>
         <h2>Your data, in the format you need</h2>
         <p>Import existing labels from COCO, YOLO, Pascal VOC or LabelMe. Export to COCO, YOLO, Pascal VOC, LabelMe, Create ML or CSV. Your images are never modified, and your work autosaves next to them.</p>
+        <h2>Segmentation, prompts and face blurring</h2>
+        <p>Segmentation models give every suggestion a mask, not just a box, and Segment Anything style models let you click an object, or draw a box, and get its mask. You can also tell a detector to look for only the classes you care about. When you need to share photos, <strong>Blur faces</strong> hides faces with a model built into the app. It runs on your Mac, previews live, and saves blurred copies without touching your originals.</p>
         <h2>Models and library</h2>
         <p>The built-in Discover page lists public models on affable. Open one to read its README and details, add it to your library, and download it if its weights are open.</p>
         <h2>Sign in, and it follows you</h2>
         <p>Signing in with your affable account unlocks your private models and saves your studio preferences to your account, so a new machine feels like your old one.</p>
+        <h2>It keeps itself up to date</h2>
+        <p>Open Preferences, then Updates, to check for a new version. Updates are signed, and the app verifies them before it replaces itself, so you never have to download the app again.</p>
         <h2>Get it</h2>
         <p>affable studio is available now for Mac with Apple silicon. <A to="/studio">Go to the studio page</A> to download it.</p>
       </>

@@ -94,6 +94,7 @@ export default function Studio() {
                 <li key={i} className="flex gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full border text-xs">{i + 1}</span><span><strong>{t}</strong> <span className="text-muted-foreground">{d}</span></span></li>
               ))}
               <li className="flex gap-3 pt-2 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />Mac with Apple silicon only for now.</li>
+              <li className="flex gap-3 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />After this, affable studio updates itself: Preferences, Updates.</li>
             </ol>
           </div>
         </section>
