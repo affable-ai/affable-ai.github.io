@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Apple, ArrowRight, Check, Cloud, Download, HardDrive, Keyboard, Library, UserRound } from 'lucide-react'
-import { studioRelease, type StudioRelease } from '@/lib/api'
+import { Apple, ArrowRight, Check, Cloud, HardDrive, Keyboard, Library, Monitor, UserRound } from 'lucide-react'
+import { studioRelease, type StudioFile, type StudioRelease } from '@/lib/api'
 import { apiUrl } from '@/lib/config'
 import { SiteFooter, SiteHeader } from '@/components/site-header'
 import { Button } from '@/components/ui/button'
@@ -28,11 +28,24 @@ function Feature({ icon, title, children, shot, alt, flip }: { icon: React.React
 export default function Studio() {
   const [rel, setRel] = useState<StudioRelease | null | undefined>(undefined)
   useEffect(() => { studioRelease().then(setRel).catch(() => setRel(null)) }, [])
-  const dl = rel ? apiUrl(rel.path) : undefined
+  const onWindows = typeof navigator !== 'undefined' && /Windows/.test(navigator.userAgent)
+  const [os, setOs] = useState<'mac' | 'win'>(onWindows ? 'win' : 'mac')
+  const files: Record<'mac' | 'win', StudioFile | null | undefined> = { mac: rel === undefined ? undefined : rel?.mac ?? null, win: rel === undefined ? undefined : rel?.windows ?? null }
+  const order: ('mac' | 'win')[] = onWindows ? ['win', 'mac'] : ['mac', 'win']
+  const label = { mac: 'Download for Mac', win: 'Download for Windows' }
+  const icon = { mac: <Apple />, win: <Monitor /> }
 
-  const DownloadBtn = ({ className = '' }: { className?: string }) => dl
-    ? <Button asChild size="lg" className={`h-12 gap-2 px-6 text-base ${className}`}><a href={dl} download><Download />Download for Mac</a></Button>
-    : <Button size="lg" disabled className={`h-12 px-6 text-base ${className}`}>{rel === undefined ? 'Checking…' : 'Download unavailable right now'}</Button>
+  const DownloadBtn = ({ className = '' }: { className?: string }) => (
+    <>
+      {order.map((k, i) => {
+        const f = files[k]
+        return f
+          ? <Button key={k} asChild size="lg" variant={i === 0 ? 'default' : 'outline'} className={`h-12 gap-2 px-6 text-base ${className}`}><a href={apiUrl(f.path)} download>{icon[k]}{label[k]}</a></Button>
+          : <Button key={k} size="lg" variant={i === 0 ? 'default' : 'outline'} disabled className={`h-12 gap-2 px-6 text-base ${className}`}>{icon[k]}{f === undefined ? 'Checking…' : `${k === 'mac' ? 'Mac' : 'Windows'} coming soon`}</Button>
+      })}
+    </>
+  )
+  const meta = (k: 'mac' | 'win') => { const f = files[k]; return f ? `${k === 'mac' ? 'macOS, Apple silicon' : 'Windows 10/11, 64-bit'} · v${f.version} · ${mb(f.size)}` : k === 'mac' ? 'macOS, Apple silicon' : 'Windows 10/11, 64-bit' }
 
   return (
     <div className="min-h-svh bg-background">
@@ -44,9 +57,11 @@ export default function Studio() {
           <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-muted-foreground">A model does the first pass. You review. affable studio turns a folder of images into labeled data in a fraction of the time.</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <DownloadBtn />
-            <Button asChild variant="outline" size="lg" className="h-12 gap-2 px-6 text-base"><Link to="/newsroom/affable-studio">Read the announcement<ArrowRight /></Link></Button>
           </div>
-          <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-muted-foreground"><Apple className="size-4" />macOS, Apple silicon{rel ? ` · v${rel.version} · ${mb(rel.size)}` : ''}</p>
+          <div className="mt-3 flex justify-center">
+            <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground"><Link to="/newsroom/affable-studio">Read the announcement<ArrowRight /></Link></Button>
+          </div>
+          <p className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm text-muted-foreground">{order.map((k) => <span key={k} className="flex items-center gap-1.5 [&_svg]:size-4">{icon[k]}{meta(k)}</span>)}</p>
         </section>
 
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -82,20 +97,29 @@ export default function Studio() {
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Get affable studio</h2>
-              <div className="mt-6"><DownloadBtn /></div>
-              {rel?.sha256 && <p className="mt-4 text-xs text-muted-foreground">SHA-256 <span className="font-mono break-all">{rel.sha256}</span></p>}
+              <div className="mt-6 flex flex-wrap gap-3"><DownloadBtn /></div>
+              {(['mac', 'win'] as const).map((k) => files[k]?.sha256 && <p key={k} className="mt-4 text-xs text-muted-foreground">{k === 'mac' ? 'Mac' : 'Windows'} SHA-256 <span className="font-mono break-all">{files[k]!.sha256}</span></p>)}
             </div>
-            <ol className="space-y-4 text-sm">
-              {[
-                ['Open the .dmg', 'and drag affable studio into Applications.'],
-                ['The first time, right-click it and choose Open.', 'affable studio isn’t notarized by Apple yet, so macOS asks you to confirm once.'],
-                ['Pick a model and open a folder.', 'That’s it. Add an account later if you want your private models.'],
-              ].map(([t, d], i) => (
-                <li key={i} className="flex gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full border text-xs">{i + 1}</span><span><strong>{t}</strong> <span className="text-muted-foreground">{d}</span></span></li>
-              ))}
-              <li className="flex gap-3 pt-2 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />Mac with Apple silicon only for now.</li>
-              <li className="flex gap-3 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />After this, affable studio updates itself: Preferences, Updates.</li>
-            </ol>
+            <div>
+              <div className="mb-4 inline-flex rounded-lg border p-1 text-sm" role="tablist" aria-label="Install steps for">
+                {(['mac', 'win'] as const).map((k) => <button key={k} role="tab" aria-selected={os === k} onClick={() => setOs(k)} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 [&_svg]:size-4 ${os === k ? 'bg-secondary font-medium' : 'text-muted-foreground'}`}>{icon[k]}{k === 'mac' ? 'Mac' : 'Windows'}</button>)}
+              </div>
+              <ol className="space-y-4 text-sm">
+                {(os === 'mac' ? [
+                  ['Open the .dmg', 'and drag affable studio into Applications.'],
+                  ['The first time, right-click it and choose Open.', 'affable studio isn’t notarized by Apple yet, so macOS asks you to confirm once.'],
+                  ['Pick a model and open a folder.', 'That’s it. Add an account later if you want your private models.'],
+                ] : [
+                  ['Run the installer', '(affable-studio-Setup-….exe). Pick where to install, or just click Install. It installs for you only, so no admin password is needed.'],
+                  ['If Windows says “Windows protected your PC”,', 'choose More info, then Run anyway. affable studio isn’t code-signed yet, so Windows asks you to confirm once.'],
+                  ['Pick a model and open a folder.', 'That’s it. Add an account later if you want your private models.'],
+                ]).map(([t, d], i) => (
+                  <li key={i} className="flex gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full border text-xs">{i + 1}</span><span><strong>{t}</strong> <span className="text-muted-foreground">{d}</span></span></li>
+                ))}
+                <li className="flex gap-3 pt-2 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />{os === 'mac' ? 'Mac with Apple silicon only for now.' : 'Windows 10 or 11, 64-bit Intel or AMD. Offline models run on the CPU.'}</li>
+                <li className="flex gap-3 text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0" />After this, affable studio updates itself: Preferences, Updates.</li>
+              </ol>
+            </div>
           </div>
         </section>
       </main>
