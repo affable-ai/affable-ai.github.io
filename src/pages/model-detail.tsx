@@ -10,6 +10,7 @@ import { SiteFooter, SiteHeader } from '@/components/site-header'
 import { Avatar } from '@/components/avatar'
 import { OfficialBadge } from '@/components/official-badge'
 import { Readme } from '@/components/readme'
+import { PromptPlayground } from '@/components/prompt-playground'
 import { CoverArtSettings } from '@/components/cover-art-settings'
 import { Playground } from '@/components/playground'
 import { CopyCode } from '@/components/copy-code'
@@ -23,8 +24,13 @@ const copy = async (text: string, what: string) => { if (await copyText(text)) t
 const DEFAULT_HOST = 'https://server.tail8c8f14.ts.net:8443' // what the CLI and Python client use unless told otherwise
 
 /** The ways to call a hosted model. The host is only spelled out when it isn't the CLI's default. */
-function snippets(slug: string, origin: string) {
+function snippets(slug: string, origin: string, promptable = false) {
   const other = origin !== DEFAULT_HOST
+  if (promptable) return {
+    cli: '',
+    python: `import affable\n\n# click on an object (x, y in pixels); "exclude" leaves a part out\nresult = affable.prompt(\n    "${slug}",\n    "photo.jpg",\n    points=[(320, 210)],${other ? `\n    host="${origin}",` : ''}\n)\nprint(result["box"], result["score"], len(result["polygons"]), "polygon(s)")\n\n# the next clicks on the same image are much faster: send its id instead of the image\nmore = affable.prompt("${slug}", image_id=result["image_id"], points=[(320, 210)], exclude=[(400, 300)])`,
+    http: `curl -X POST "${origin}/api/models/${slug}/prompt?points=320,210,1" \\\n  --data-binary @photo.jpg\n\n# box instead of a point, or later clicks by image id (no upload):\n#   ?box=x0,y0,x1,y1     ?points=400,300,0&image=<image_id>`,
+  }
   return {
     cli: `${other ? `AFFABLE_HOST=${origin} ` : ''}affable run ${slug} photo.jpg --conf 0.35`,
     python: `import affable\n\nresult = affable.run(\n    "${slug}",\n    "photo.jpg",\n    conf=0.35,${other ? `\n    host="${origin}",` : ''}\n)\nfor d in result["detections"]:\n    print(d["label"], d["score"], d["box"])`,
@@ -44,8 +50,9 @@ const SAMPLE = `{
 
 function ApiDocs({ m, mine }: { m: Model; mine: boolean }) {
   const [lang, setLang] = useState<'python' | 'cli' | 'http'>('python')
-  const s = snippets(m.slug, siteOrigin())
-  const code = { python: s.python, cli: `$ ${s.cli}`, http: `$ ${s.http}` }[lang]
+  const promptable = m.task === 'prompt-segment'
+  const s = snippets(m.slug, siteOrigin(), promptable)
+  const code = { python: s.python, cli: `$ ${s.cli}`, http: `$ ${s.http}` }[promptable && lang === 'cli' ? 'python' : lang]
   const pill = (id: 'python' | 'cli' | 'http', label: string) => (
     <button onClick={() => setLang(id)} className={`-mb-px border-b-2 px-4 py-2 text-[15px] ${lang === id ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{label}</button>
   )
@@ -58,7 +65,7 @@ function ApiDocs({ m, mine }: { m: Model; mine: boolean }) {
         <CopyCode>{'$ pip install affable'}</CopyCode>
       </div>
       <div className="space-y-4">
-        <div className="flex border-b">{pill('python', 'Python')}{pill('cli', 'CLI')}{pill('http', 'HTTP')}</div>
+        <div className="flex border-b">{pill('python', 'Python')}{!promptable && pill('cli', 'CLI')}{pill('http', 'HTTP')}</div>
         <CopyCode>{code}</CopyCode>
         {(!m.public || mine) && <p className="text-sm text-muted-foreground">{m.public ? 'Public models need no key.' : 'This model is private, so calls need your API key.'} {lang === 'http' ? 'Send it as an Authorization: Bearer header.' : 'Run affable login first, or pass api_key=.'}</p>}
       </div>
@@ -110,7 +117,7 @@ export default function ModelDetail() {
   const readme = v.files.find((f) => /^readme\.md$/i.test(f.path))
   const pull = `affable pull ${m.slug}`
   const canPull = m.open_weights || mine
-  const snip = snippets(m.slug, siteOrigin())
+  const snip = snippets(m.slug, siteOrigin(), m.task === 'prompt-segment')
   const tabs = [
     ...(m.hosted ? [{ id: 'playground', label: 'Playground', icon: Play }, { id: 'api', label: 'API', icon: Code2 }] : []),
     ...(readme ? [{ id: 'readme', label: 'README', icon: FileText }] : []),
@@ -133,7 +140,7 @@ export default function ModelDetail() {
           <button aria-label="Copy name" onClick={() => copy(m.slug, 'Name')} className="shrink-0 text-muted-foreground hover:text-foreground"><Copy className="size-5" /></button>
         </div>
         {(m.hosted || canPull) && <div className="flex shrink-0">
-          <Button variant="outline" className="h-11 rounded-r-none px-4 text-base" onClick={() => m.hosted ? copy(snip.cli, 'Command') : copy(pull, 'Command')}><Copy />Copy</Button>
+          <Button variant="outline" className="h-11 rounded-r-none px-4 text-base" onClick={() => m.hosted ? copy(m.task === 'prompt-segment' ? snip.python : snip.cli, m.task === 'prompt-segment' ? 'Python example' : 'Command') : copy(pull, 'Command')}><Copy />Copy</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild><Button variant="outline" className="h-11 rounded-l-none border-l-0 px-2.5" aria-label="More copy options"><ChevronDown /></Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -157,6 +164,7 @@ export default function ModelDetail() {
         </span>
         {m.runnable && !m.hosted && <span className={chip}><Clock className="size-5" />{m.host_status && (m.host_status.state === 'uploading' || m.host_status.state === 'queued') ? `Preparing on host${m.host_status.state === 'uploading' ? ` (${m.host_status.pct}%)` : ''}` : 'Not hosted yet'}</span>}
         {m.task === 'segment' && <span className={chip}><Shapes className="size-5" />Segmentation</span>}
+        {m.task === 'prompt-segment' && <span className={chip}><Shapes className="size-5" />Promptable segmentation</span>}
         {m.public && <span className={chip}>{m.open_weights ? <LockOpen className="size-5" /> : <Lock className="size-5" />}{m.open_weights ? 'Open weights' : 'Closed weights'}</span>}
         <span className={chip}><Cpu className="size-5" />{humanParams(v.params)} parameters</span>
         <span className={chip}><HardDrive className="size-5" />{humanSize(v.size)}</span>
@@ -174,7 +182,7 @@ export default function ModelDetail() {
       </div>
 
       <div className="mt-10 space-y-14">
-        {tab === 'playground' && m.hosted && <Playground owner={owner} name={name} />}
+        {tab === 'playground' && m.hosted && (m.task === 'prompt-segment' ? <PromptPlayground owner={owner} name={name} /> : <Playground owner={owner} name={name} />)}
 
         {tab === 'api' && m.hosted && <ApiDocs m={m} mine={mine} />}
 

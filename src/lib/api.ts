@@ -13,11 +13,12 @@ export type FileInfo = { path: string; size: number }
 export type Version = { number: number; message: string; params: number; size: number; files: FileInfo[]; created_at: number }
 export type Model = {
   owner: string; owner_avatar: string | null; name: string; slug: string; description: string
-  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; task: 'detect' | 'segment' | null; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
+  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; task: 'detect' | 'segment' | 'prompt-segment' | null; prompts: ('point' | 'box')[] | null; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
   history?: Version[]
 }
 export type Profile = { username: string; official: boolean; name: string; avatar: string | null; bio: string; website: string; created_at: number; is_me: boolean; models: Model[] }
 export type RunResult = { width: number; height: number; model: string; version: number; conf: number; task?: 'detect' | 'segment'; detections: { class_id: number; label: string; score: number; box: number[]; polygons?: number[][] }[] }
+export type PromptResult = { width: number; height: number; image_id: string; score: number; box: number[] | null; polygons: number[][]; model: string; version: number }
 export type ApiKey = { id: number; name: string; prefix: string; created_at: number; last_used: number | null }
 
 export class ApiError extends Error {
@@ -70,6 +71,13 @@ export const api = {
   setOpenWeights: (owner: string, name: string, open: boolean) => req('PATCH', `/api/models/${owner}/${name}`, { open_weights: open }),
   run: async (owner: string, name: string, image: Blob, conf: number): Promise<RunResult> => {
     const r = await fetch(`${API_BASE}/api/models/${owner}/${name}/run?conf=${conf}`, { method: 'POST', credentials: STANDALONE ? 'omit' : 'same-origin', headers: authHeaders({ 'content-type': image.type || 'image/jpeg' }), body: image })
+    if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail ?? m } catch { /* ignore */ } throw new ApiError(r.status, m) }
+    return r.json()
+  },
+  /** One prompt on a promptable model. Send the image the first time; afterwards pass imageId and no image (much faster). */
+  prompt: async (owner: string, name: string, a: { image?: Blob; imageId?: string; points: { x: number; y: number; label: 0 | 1 }[] }): Promise<PromptResult> => {
+    const q = [`points=${encodeURIComponent(a.points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)},${p.label}`).join(';'))}`, ...(!a.image && a.imageId ? [`image=${encodeURIComponent(a.imageId)}`] : [])].join('&')
+    const r = await fetch(`${API_BASE}/api/models/${owner}/${name}/prompt?${q}`, { method: 'POST', credentials: STANDALONE ? 'omit' : 'same-origin', headers: authHeaders({ 'content-type': 'application/octet-stream' }), body: a.image ?? new Blob([]) })
     if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail ?? m } catch { /* ignore */ } throw new ApiError(r.status, m) }
     return r.json()
   },

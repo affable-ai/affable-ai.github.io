@@ -8,7 +8,7 @@ import { CopyCode } from '@/components/copy-code'
 const color = (id: number) => `hsl(${(id * 47) % 360} 85% 62%)`
 
 /** Shrink big photos before upload: keeps the request small. */
-async function prepare(file: File, max = 1600): Promise<Blob> {
+export async function prepare(file: File, max = 1600): Promise<Blob> {
   const url = URL.createObjectURL(file)
   try {
     const img = new Image()
