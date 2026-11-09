@@ -42,7 +42,8 @@ export default function Login() {
   useEffect(() => { const id = params.get('approve'), s = new URLSearchParams(window.location.hash.slice(1)).get('s'); if (id && s) { setApproval({ ch: { id, secret: s, expires_in: 180 } }); history.replaceState(null, '', window.location.pathname) } }, [params])
   useEffect(() => { const e = params.get('error'); if (e) toast.error(ERRORS[e] ?? 'Sign-in failed') }, [params])
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />
+  const next = params.get('next'), after = next && /^\/[A-Za-z0-9/_?=&.%-]*$/.test(next) && !next.startsWith('//') ? next : '/dashboard'   // where to go once signed in (only a path on this site)
+  if (!loading && user) return <Navigate to={after} replace />
 
   async function submit(e: FormEvent) {
     e.preventDefault()

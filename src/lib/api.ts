@@ -68,6 +68,8 @@ function keepToken(r: User & { token?: string }): User {
   return user
 }
 
+export type DeviceRequest = { code: string; status: string; name: string; ip: string | null; agent: string | null; expires_in: number; account: string }
+
 export const api = {
   credits: () => req<Credits>('GET', '/api/me/credits'),
   pricing: () => req<PricingSettings & { billable: string }>('GET', '/api/pricing'),
@@ -139,6 +141,9 @@ export const api = {
   changePassword: (current: string | undefined, next: string) => req('POST', '/api/auth/password', { current, new: next }),
   logoutOthers: () => req<{ signed_out: number }>('POST', '/api/auth/logout-others'),
   deleteAccount: (confirm: string, password?: string) => req('POST', '/api/me/delete', { confirm, password }),
+  deviceLookup: (code: string) => req<DeviceRequest>('GET', `/api/auth/device/${encodeURIComponent(code)}`),
+  deviceApprove: (code: string) => req<{ ok: boolean }>('POST', `/api/auth/device/${encodeURIComponent(code)}/approve`),
+  deviceDeny: (code: string) => req<{ ok: boolean }>('POST', `/api/auth/device/${encodeURIComponent(code)}/deny`),
   keys: () => req<ApiKey[]>('GET', '/api/keys'),
   createKey: (name: string) => req<{ key: string }>('POST', '/api/keys', { name }),
   deleteKey: (id: number) => req('DELETE', `/api/keys/${id}`),

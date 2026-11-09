@@ -17,6 +17,7 @@ import Keys from '@/pages/keys'
 import SettingsPage from '@/pages/settings'
 import ProfilePage from '@/pages/profile'
 import ConsolePage from '@/pages/console'
+import Connect from '@/pages/connect'
 
 /** Where GitHub/Google sign-in lands: the server hands the session token over in the URL fragment. */
 function AuthCallback() {
@@ -29,7 +30,7 @@ function AuthCallback() {
 }
 
 const TITLES: Record<string, string> = {
-  '/': 'affable', '/login': 'Sign in', '/discover': 'Discover models', '/docs': 'Docs', '/newsroom': 'Newsroom', '/studio': 'affable studio',
+  '/': 'affable', '/login': 'Sign in', '/discover': 'Discover models', '/docs': 'Docs', '/newsroom': 'Newsroom', '/studio': 'affable studio', '/connect': 'Connect the command line',
   '/dashboard': 'Your models', '/dashboard/keys': 'API keys', '/dashboard/settings': 'Settings', '/dashboard/console': 'Console',
 }
 
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/newsroom" element={<Newsroom />} />
           <Route path="/newsroom/:slug" element={<NewsPost />} />
           <Route path="/studio" element={<Studio />} />
+          <Route path="/connect" element={<Connect />} />
           <Route path="/models/:owner/:name" element={<ModelDetail />} />
           <Route path="/dashboard" element={<Layout />}>
             <Route index element={<Models />} />

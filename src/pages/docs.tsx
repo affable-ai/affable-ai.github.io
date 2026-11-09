@@ -42,7 +42,7 @@ export default function Docs() {
             <P>The CLI needs Python 3.9 or newer.</P><CopyCode>{'$ pip install affable'}</CopyCode></section>
 
           <section id="login" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Log in</h2>
-            <P>Create an API key on the <Link to="/dashboard/keys" className="text-foreground underline underline-offset-4">API keys</Link> page, then paste it when prompted. The key is stored in <C>~/.config/affable/config.json</C>. You can also set <C>AFFABLE_API_KEY</C> and <C>AFFABLE_HOST</C>.</P>
+            <P>Run <C>affable login</C> and choose with the arrow keys: <strong className="text-foreground">Open the browser</strong> shows a short code to confirm at <Link to="/connect" className="text-foreground underline underline-offset-4">affable-ai.github.io/connect</Link>, or <strong className="text-foreground">Paste an API key</strong> from the <Link to="/dashboard/keys" className="text-foreground underline underline-offset-4">API keys</Link> page. The key is stored in <C>~/.config/affable/config.json</C>. You can also set <C>AFFABLE_API_KEY</C> and <C>AFFABLE_HOST</C>.</P>
             <CopyCode>{'$ affable login\n$ affable whoami'}</CopyCode></section>
 
           <section id="push" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Push a model</h2>
