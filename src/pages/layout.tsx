@@ -1,5 +1,5 @@
 import { Link, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom'
-import { KeyRound, LogOut, Boxes, Compass, Settings, User as UserIcon } from 'lucide-react'
+import { KeyRound, LogOut, Boxes, Compass, Settings, ShieldCheck, User as UserIcon } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { Avatar } from '@/components/avatar'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,7 @@ export default function Layout() {
             <NavLink to="/dashboard/keys" className={link}><KeyRound className="size-4" />API keys</NavLink>
             <NavLink to="/discover" className={link}><Compass className="size-4" />Discover</NavLink>
             <NavLink to="/dashboard/settings" className={link}><Settings className="size-4" />Settings</NavLink>
+            {user.official && <NavLink to="/dashboard/console" className={link}><ShieldCheck className="size-4" />Console</NavLink>}
           </nav>
           <div className="ml-auto">
             <DropdownMenu>

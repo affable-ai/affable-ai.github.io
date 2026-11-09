@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronDown, Clock, Code2, Copy, Cpu, FileText, Folder, GitBranch, HardDrive, Globe, Lock, LockOpen, Play, Settings, Shapes, Trash2 } from 'lucide-react'
+import { ChevronDown, Clock, Code2, Coins, Copy, Cpu, FileText, Folder, GitBranch, HardDrive, Globe, Lock, LockOpen, Play, Settings, Shapes, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { siteOrigin } from '@/lib/config'
-import { api, ago, humanParams, humanSize, type Model } from '@/lib/api'
+import { api, ago, humanParams, humanSize, usd, type Model } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { copyText } from '@/lib/clipboard'
 import { SiteFooter, SiteHeader } from '@/components/site-header'
@@ -29,12 +29,12 @@ function snippets(slug: string, origin: string, promptable = false) {
   if (promptable) return {
     cli: '',
     python: `import affable\n\n# click on an object (x, y in pixels); "exclude" leaves a part out\nresult = affable.prompt(\n    "${slug}",\n    "photo.jpg",\n    points=[(320, 210)],${other ? `\n    host="${origin}",` : ''}\n)\nprint(result["box"], result["score"], len(result["polygons"]), "polygon(s)")\n\n# the next clicks on the same image are much faster: send its id instead of the image\nmore = affable.prompt("${slug}", image_id=result["image_id"], points=[(320, 210)], exclude=[(400, 300)])`,
-    http: `curl -X POST "${origin}/api/models/${slug}/prompt?points=320,210,1" \\\n  --data-binary @photo.jpg\n\n# box instead of a point, or later clicks by image id (no upload):\n#   ?box=x0,y0,x1,y1     ?points=400,300,0&image=<image_id>`,
+    http: `curl -X POST "${origin}/api/models/${slug}/prompt?points=320,210,1" \\\n  -H "Authorization: Bearer $AFFABLE_API_KEY" \\\n  --data-binary @photo.jpg\n\n# box instead of a point, or later clicks by image id (no upload):\n#   ?box=x0,y0,x1,y1     ?points=400,300,0&image=<image_id>`,
   }
   return {
     cli: `${other ? `AFFABLE_HOST=${origin} ` : ''}affable run ${slug} photo.jpg --conf 0.35`,
     python: `import affable\n\nresult = affable.run(\n    "${slug}",\n    "photo.jpg",\n    conf=0.35,${other ? `\n    host="${origin}",` : ''}\n)\nfor d in result["detections"]:\n    print(d["label"], d["score"], d["box"])`,
-    http: `curl -X POST "${origin}/api/models/${slug}/run?conf=0.35" \\\n  --data-binary @photo.jpg`,
+    http: `curl -X POST "${origin}/api/models/${slug}/run?conf=0.35" \\\n  -H "Authorization: Bearer $AFFABLE_API_KEY" \\\n  --data-binary @photo.jpg`,
   }
 }
 
@@ -166,6 +166,7 @@ export default function ModelDetail() {
         {m.task === 'segment' && <span className={chip}><Shapes className="size-5" />Segmentation</span>}
         {m.task === 'prompt-segment' && <span className={chip}><Shapes className="size-5" />Promptable segmentation</span>}
         {m.public && <span className={chip}>{m.open_weights ? <LockOpen className="size-5" /> : <Lock className="size-5" />}{m.open_weights ? 'Open weights' : 'Closed weights'}</span>}
+        {m.runnable && m.price_per_million != null && <span className={chip} title="Charged per billable box: a detection above 25% confidence, however high you set your own threshold. Boxes below 25% are free."><Coins className="size-5" />{usd(m.price_per_million)} per 1M boxes</span>}
         <span className={chip}><Cpu className="size-5" />{humanParams(v.params)} parameters</span>
         <span className={chip}><HardDrive className="size-5" />{humanSize(v.size)}</span>
         <span className={chip}><GitBranch className="size-5" />{m.versions} {m.versions === 1 ? 'version' : 'versions'}</span>

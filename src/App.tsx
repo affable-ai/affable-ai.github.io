@@ -16,6 +16,7 @@ import ModelDetail from '@/pages/model-detail'
 import Keys from '@/pages/keys'
 import SettingsPage from '@/pages/settings'
 import ProfilePage from '@/pages/profile'
+import ConsolePage from '@/pages/console'
 
 /** Where GitHub/Google sign-in lands: the server hands the session token over in the URL fragment. */
 function AuthCallback() {
@@ -46,6 +47,7 @@ export default function App() {
             <Route index element={<Models />} />
             <Route path="keys" element={<Keys />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="console" element={<ConsolePage />} />
           </Route>
           <Route path="/:username" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

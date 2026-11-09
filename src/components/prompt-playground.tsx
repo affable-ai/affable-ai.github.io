@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type DragEvent, type MouseEvent } from 'react'
 import { ImagePlus, Loader2, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
-import { api, ApiError, type PromptResult } from '@/lib/api'
+import { api, ApiError, usd, type PromptResult } from '@/lib/api'
 import { prepare } from '@/components/playground'
 import { Button } from '@/components/ui/button'
 
@@ -82,7 +82,7 @@ export function PromptPlayground({ owner, name }: { owner: string; name: string 
           {busy && <div className="absolute top-3 right-3 rounded-full bg-background/80 p-2"><Loader2 className="size-4 animate-spin" /></div>}
         </div>
       )}
-      {res && <p className="text-center text-sm text-muted-foreground">{res.polygons.length ? `Mask found · confidence ${Math.round(Math.min(1, res.score) * 100)}%` : 'Nothing found there.'}</p>}
+      {res && <p className="text-center text-sm text-muted-foreground">{res.polygons.length ? `Mask found · confidence ${Math.round(Math.min(1, res.score) * 100)}%` : 'Nothing found there.'}{res.credits && ` · ${res.credits.unmetered ? 'free' : usd(res.credits.charged_usd)} · ${usd(res.credits.balance_usd)} left`}</p>}
     </div>
   )
 }

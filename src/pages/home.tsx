@@ -46,7 +46,7 @@ function HeroCode() {
   const origin = typeof window !== 'undefined' ? siteOrigin() : ''
   const code: Record<Tab, string> = {
     python: 'import affable\n\nresult = affable.run("affable/extra-a", "photo.jpg")\nfor d in result["detections"]:\n    print(d["label"], d["score"], d["box"])',
-    curl: `$ curl -X POST "${origin}/api/models/affable/extra-a/run" \\\n    --data-binary @photo.jpg`,
+    curl: `$ curl -X POST "${origin}/api/models/affable/extra-a/run" \\\n    -H "Authorization: Bearer $AFFABLE_API_KEY" \\\n    --data-binary @photo.jpg`,
     cli: '$ affable run affable/extra-a photo.jpg',
   }
   const t = (id: Tab, label: string) => <button onClick={() => setTab(id)} className={`-mb-px border-b-2 px-4 py-2.5 text-sm ${tab === id ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{label}</button>

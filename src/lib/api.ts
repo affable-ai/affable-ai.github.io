@@ -16,12 +16,27 @@ export type FileInfo = { path: string; size: number }
 export type Version = { number: number; message: string; params: number; size: number; files: FileInfo[]; created_at: number }
 export type Model = {
   owner: string; owner_avatar: string | null; name: string; slug: string; description: string
-  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; owner_official: boolean; task: 'detect' | 'segment' | 'prompt-segment' | null; prompts: ('point' | 'box')[] | null; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
+  public: boolean; open_weights: boolean; runnable: boolean; hosted: boolean; price_per_million?: number | null; owner_official: boolean; task: 'detect' | 'segment' | 'prompt-segment' | null; prompts: ('point' | 'box')[] | null; cover: string | null; cover_seed: string | null; num_classes: number; host_status: { state: 'ready' | 'queued' | 'uploading' | 'failed' | 'unknown'; pct: number } | null; created_at: number; updated_at: number; versions: number; latest: Version | null
   history?: Version[]
 }
 export type Profile = { username: string; official: boolean; name: string; avatar: string | null; bio: string; website: string; created_at: number; is_me: boolean; models: Model[] }
-export type RunResult = { width: number; height: number; model: string; version: number; conf: number; task?: 'detect' | 'segment'; detections: { class_id: number; label: string; score: number; box: number[]; polygons?: number[][] }[] }
-export type PromptResult = { width: number; height: number; image_id: string; score: number; box: number[] | null; polygons: number[][]; model: string; version: number }
+export type RunResult = { credits?: RunCredits; width: number; height: number; model: string; version: number; conf: number; task?: 'detect' | 'segment'; detections: { class_id: number; label: string; score: number; box: number[]; polygons?: number[][] }[] }
+export type PromptResult = { credits?: RunCredits; width: number; height: number; image_id: string; score: number; box: number[] | null; polygons: number[][]; model: string; version: number }
+export type Credits = { free_usd: number; paid_usd: number; total_usd: number; daily_usd: number; unmetered: boolean; resets_at: number; today: { runs: number; boxes: number; usd: number }; recent: LedgerRow[] }
+export type LedgerRow = { ts: number; kind: string; model: string | null; boxes: number; usd: number; note: string | null }
+export type RunCredits = { billable_boxes: number; price_per_million: number; charged_usd: number; balance_usd: number; unmetered: boolean }
+export type PricingSettings = { price_per_mparam: number; price_min: number; billable_conf: number; daily_free_usd: number; prompt_boxes: number }
+export type ConsoleUser = {
+  id: number; username: string; name: string; email: string | null; created_at: number; official: boolean; suspended: boolean; unmetered: boolean; unmetered_override: boolean | null
+  free_usd: number; paid_usd: number; daily_usd: number; daily_override: number | null; max_params: number | null; max_params_override: number | null; provider: string | null; phone_2fa: boolean; models: number
+}
+export type ConsoleUserDetail = ConsoleUser & { models_list: { slug: string; public: boolean; params: number }[]; usage_30d: { runs: number; boxes: number; usd: number }; keys: number; devices: number; recent: LedgerRow[] }
+export type ConsoleOverview = {
+  users: number; official: number; suspended: number; new_today: number; models: number
+  today: { runs: number; boxes: number; usd: number; active_users: number }; week: { runs: number; boxes: number; usd: number }; all_time: { runs: number; boxes: number; usd: number }
+  settings: PricingSettings; top_models: { model: string; runs: number; boxes: number; usd: number }[]
+}
+export type AuditRow = { ts: number; admin: string; target: string | null; action: string; detail: string | null }
 export type ApiKey = { id: number; name: string; prefix: string; created_at: number; last_used: number | null }
 
 export class ApiError extends Error {
@@ -54,6 +69,17 @@ function keepToken(r: User & { token?: string }): User {
 }
 
 export const api = {
+  credits: () => req<Credits>('GET', '/api/me/credits'),
+  pricing: () => req<PricingSettings & { billable: string }>('GET', '/api/pricing'),
+  consoleOverview: () => req<ConsoleOverview>('GET', '/api/console/overview'),
+  consoleUsers: (q = '', offset = 0) => req<{ total: number; users: ConsoleUser[] }>('GET', `/api/console/users?q=${encodeURIComponent(q)}&limit=50&offset=${offset}`),
+  consoleUser: (username: string) => req<ConsoleUserDetail>('GET', `/api/console/users/${encodeURIComponent(username)}`),
+  consoleEditUser: (username: string, body: { official?: boolean; suspended?: boolean; unmetered?: boolean | null; max_params?: number | null; daily_free_usd?: number | null }) => req<ConsoleUser>('PATCH', `/api/console/users/${encodeURIComponent(username)}`, body),
+  consoleCredits: (username: string, usd: number, note: string) => req<ConsoleUser>('POST', `/api/console/users/${encodeURIComponent(username)}/credits`, { usd, note }),
+  consoleRefill: (username: string) => req<ConsoleUser>('POST', `/api/console/users/${encodeURIComponent(username)}/refill`),
+  consoleSettings: () => req<{ settings: PricingSettings; defaults: PricingSettings; limits: Record<string, [number, number]>; max_params_default: number }>('GET', '/api/console/settings'),
+  consoleSetSettings: (body: Partial<PricingSettings>) => req<{ settings: PricingSettings }>('PUT', '/api/console/settings', body),
+  consoleAudit: () => req<AuditRow[]>('GET', '/api/console/audit?limit=200'),
   health: () => req<{ ok: boolean; max_params: number }>('GET', '/api/health'),
   providers: () => req<{ oauth: string[]; password: boolean }>('GET', '/api/auth/providers'),
   me: () => req<User>('GET', '/api/me'),
@@ -138,3 +164,12 @@ export function ago(ts: number) {
 export type StudioFile = { version: string; platform: string; file: string; size: number; sha256: string | null; released: string | null; path: string }
 export type StudioRelease = { mac: StudioFile | null; windows: StudioFile | null }
 export const studioRelease = () => req<StudioRelease>('GET', '/api/downloads/studio')
+
+/** Money for people: $5.00, $0.27, $0.0012, and "<$0.0001" for the tiny amounts a single run costs. */
+export function usd(n: number) {
+  if (n === 0) return '$0.00'
+  const a = Math.abs(n), sign = n < 0 ? '-' : ''
+  if (a >= 0.01) return `${sign}$${a.toFixed(2)}`
+  if (a < 0.0001) return `${sign}<$0.0001`
+  return `${sign}$${a.toFixed(4)}`
+}

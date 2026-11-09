@@ -10,6 +10,7 @@ const sections = [
   { id: 'push', title: 'Push a model' },
   { id: 'pull', title: 'Pull a model' },
   { id: 'run', title: 'Run a model' },
+  { id: 'credits', title: 'Credits & pricing' },
   { id: 'filter', title: 'Detect only some classes' },
   { id: 'segmentation', title: 'Segmentation' },
   { id: 'promptable', title: 'Promptable models' },
@@ -54,14 +55,19 @@ export default function Docs() {
             <CopyCode>{'$ affable pull owner/name\n$ affable pull owner/name -v 2 -o ./weights'}</CopyCode></section>
 
           <section id="run" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Run a model</h2>
-            <P>YOLO-style detection and segmentation models are hosted on affable, so you can run them without downloading anything. Use the Playground tab on a model page, or call the API from Python, the CLI or plain HTTP. Public models need no login.</P>
+            <P>YOLO-style detection and segmentation models are hosted on affable, so you can run them without downloading anything. Use the Playground tab on a model page, or call the API from Python, the CLI or plain HTTP. Running a model needs an account and costs <Link to="#credits" className="underline underline-offset-4">credits</Link>: everyone gets free credits every day.</P>
             <CopyCode>{'import affable\n\nresult = affable.run("affable/extra-a", "photo.jpg", conf=0.35)\nfor d in result["detections"]:\n    print(d["label"], d["score"], d["box"])'}</CopyCode>
-            <CopyCode>{'$ affable run affable/extra-a photo.jpg --conf 0.35\n$ curl -X POST "' + siteOrigin() + '/api/models/affable/extra-a/run?conf=0.35" --data-binary @photo.jpg'}</CopyCode>
-            <P>For your own private models, run <C>affable login</C> first or pass <C>api_key=</C> in Python. Over HTTP send it as an <C>Authorization: Bearer</C> header.</P></section>
+            <CopyCode>{'$ affable run affable/extra-a photo.jpg --conf 0.35\n$ curl -X POST "' + siteOrigin() + '/api/models/affable/extra-a/run?conf=0.35" -H "Authorization: Bearer $AFFABLE_API_KEY" --data-binary @photo.jpg'}</CopyCode>
+            <P>Run <C>affable login</C> first, or pass <C>api_key=</C> in Python. Over HTTP send your key as an <C>Authorization: Bearer</C> header. Make one under <Link to="/dashboard/keys" className="underline underline-offset-4">API keys</Link>.</P></section>
+
+          <section id="credits" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Credits &amp; pricing</h2>
+            <P>Running a cloud model costs credits, charged per <strong className="text-foreground">billable box</strong>. A box is billable when its confidence is <strong className="text-foreground">above 25%</strong>, however you set your own confidence. If you ask for 65% you see only the boxes above 65%, but you pay for every box above 25% that the model found. If you ask for less than 25% you still get those boxes, and the ones below 25% are free.</P>
+            <P>A model's price per 1,000,000 billable boxes is set by its size: <C>max($0.05, $0.10 × millions of parameters)</C>. A 2.72M-parameter model such as extra-a costs about $0.27 per million boxes, so a single run with a handful of boxes costs a tiny fraction of a cent. Each model page shows its price. Click and box prompts on promptable models count as one billable box each.</P>
+            <P>Every account gets <strong className="text-foreground">$5.00 of free credits each day</strong>. They refill at 00:00 UTC and don't pile up. Credits added by the affable team don't expire, and are used after the free ones. See your balance and recent runs under <Link to="/dashboard/settings" className="underline underline-offset-4">Settings</Link>. When you run out, runs stop with HTTP 402 and a message saying when your free credits refill. Every run answers with a <C>credits</C> object: billable boxes, price, what it cost and what is left.</P></section>
 
           <section id="filter" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Detect only some classes</h2>
             <P>Every detection model lists what it can detect: <C>GET /api/models/owner/name/classes</C>. Pass <C>classes</C> to look for just some of them. The model judges each box only among those classes, so they are not crowded out by others. Names are matched in any case and must exist in the model, up to 400 at a time.</P>
-            <CopyCode>{'result = affable.run("affable/extra-a", "photo.jpg", classes=["vase", "chair"])\n\n$ affable run affable/extra-a photo.jpg --classes "vase,chair"\n$ curl -X POST "' + siteOrigin() + '/api/models/affable/extra-a/run?classes=vase&classes=chair" --data-binary @photo.jpg'}</CopyCode></section>
+            <CopyCode>{'result = affable.run("affable/extra-a", "photo.jpg", classes=["vase", "chair"])\n\n$ affable run affable/extra-a photo.jpg --classes "vase,chair"\n$ curl -X POST "' + siteOrigin() + '/api/models/affable/extra-a/run?classes=vase&classes=chair" -H "Authorization: Bearer $AFFABLE_API_KEY" --data-binary @photo.jpg'}</CopyCode></section>
           <section id="segmentation" className="scroll-mt-24 space-y-4"><h2 className="text-2xl font-semibold tracking-tight">Segmentation</h2>
             <P>YOLO-style segmentation models (such as YOLO26-seg exports) work like detection models, and every detection also has <C>polygons</C>: the object's mask as COCO-style polygons, one flat list <C>[x0, y0, x1, y1, ...]</C> per part, in pixels of the image you sent. Push one the same way as any other model.</P>
             <CopyCode>{'result = affable.run("owner/my-seg-model", "photo.jpg")\nfor d in result["detections"]:\n    print(d["label"], d["score"], len(d["polygons"]), "polygon(s)")'}</CopyCode></section>

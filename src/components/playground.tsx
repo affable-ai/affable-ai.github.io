@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react'
 import { ImagePlus, Loader2, Play } from 'lucide-react'
 import { toast } from 'sonner'
-import { api, ApiError, type RunResult } from '@/lib/api'
+import { api, ApiError, usd, type RunResult } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { CopyCode } from '@/components/copy-code'
 
@@ -102,7 +102,7 @@ export function Playground({ owner, name }: { owner: string; name: string }) {
                 })}
               </svg>
             </div>
-            <p className="text-sm text-muted-foreground">{res.detections.length} {res.detections.length === 1 ? 'object' : 'objects'} {res.detections.length === 0 ? '· try a lower confidence' : ''}</p>
+            <p className="text-sm text-muted-foreground">{res.detections.length} {res.detections.length === 1 ? 'object' : 'objects'} {res.detections.length === 0 ? '· try a lower confidence' : ''}{res.credits && <span> · {res.credits.unmetered ? 'free run' : `${usd(res.credits.charged_usd)} for ${res.credits.billable_boxes} billable ${res.credits.billable_boxes === 1 ? 'box' : 'boxes'}`} · {usd(res.credits.balance_usd)} left</span>}</p>
           </div>
         )}
         {res && !busy && view === 'json' && <CopyCode>{JSON.stringify(res, null, 2)}</CopyCode>}
