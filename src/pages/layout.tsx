@@ -40,7 +40,7 @@ export default function Layout() {
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuLabel className="font-normal"><div className="text-sm font-medium">{user.username}</div><div className="truncate text-xs text-muted-foreground">{user.email}</div></DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => nav('/dashboard/settings')} aria-label="Credits" className="items-start"><Coins className="mt-0.5" /><span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-3"><span>Credits</span><span className="font-medium" data-testid="menu-credits">{!credits ? '…' : credits.unmetered ? 'Free' : usd(credits.total_usd)}</span></span>{credits && !credits.unmetered && <span className="block text-xs text-muted-foreground">{usd(credits.free_usd)} free today</span>}</span></DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav('/dashboard/settings')} aria-label="Credits" className="items-start"><Coins className="mt-0.5" /><span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-3"><span>Credits</span><span className="font-medium" data-testid="menu-credits">{!credits ? '…' : usd(credits.total_usd)}</span></span>{credits && <span className="block text-xs text-muted-foreground">{usd(credits.free_usd)} free today</span>}</span></DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav(`/${user.username}`)}><UserIcon />Profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav('/dashboard/settings')}><Settings />Settings</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav('/dashboard/keys')}><KeyRound />API keys</DropdownMenuItem>

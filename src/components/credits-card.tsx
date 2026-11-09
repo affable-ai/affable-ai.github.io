@@ -16,8 +16,8 @@ export function CreditsCard() {
   return (
     <div className="space-y-5">
       <div>
-        <div className="text-3xl font-semibold tracking-tight" data-testid="credit-total">{c.unmetered ? 'Free runs' : usd(c.total_usd)}</div>
-        <p className="mt-1 text-sm text-muted-foreground">{c.unmetered ? 'Your account runs cloud models for free.' : <>{usd(c.free_usd)} free today of {usd(c.daily_usd)}, refilling in {untilReset(c.resets_at)} (00:00 UTC), plus {usd(c.paid_usd)} in credits that don’t expire.</>}</p>
+        <div className="text-3xl font-semibold tracking-tight" data-testid="credit-total">{usd(c.total_usd)}</div>
+        <p className="mt-1 text-sm text-muted-foreground">{usd(c.free_usd)} free today of {usd(c.daily_usd)}, refilling in {untilReset(c.resets_at)} (00:00 UTC), plus {usd(c.paid_usd)} in credits that don’t expire.{c.unmetered && ' Your account isn’t charged for runs, so this balance stays as it is.'}</p>
       </div>
       <p className="text-sm text-muted-foreground">Running a cloud model is charged per <strong className="text-foreground">billable box</strong>: a detection above 25% confidence, even if you ask to see only the sure ones. Boxes below 25% are free. Each model shows its price per 1M boxes.</p>
       <div className="text-sm"><span className="font-medium">Today</span> <span className="text-muted-foreground">{c.today.runs} run{c.today.runs === 1 ? '' : 's'} · {c.today.boxes.toLocaleString()} billable box{c.today.boxes === 1 ? '' : 'es'} · {usd(c.today.usd)}</span></div>

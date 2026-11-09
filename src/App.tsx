@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider } from '@/lib/auth'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -28,11 +28,28 @@ function AuthCallback() {
   return <div className="grid min-h-svh place-items-center text-sm text-muted-foreground">Signing you in…</div>
 }
 
+const TITLES: Record<string, string> = {
+  '/': 'affable', '/login': 'Sign in', '/discover': 'Discover models', '/docs': 'Docs', '/newsroom': 'Newsroom', '/studio': 'affable studio',
+  '/dashboard': 'Your models', '/dashboard/keys': 'API keys', '/dashboard/settings': 'Settings', '/dashboard/console': 'Console',
+}
+
+/** The tab title follows the page: "Discover models · affable", a model's name, a profile's username. */
+function PageTitle() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const p = pathname.replace(/\/+$/, '') || '/', seg = p.split('/').filter(Boolean)
+    const t = TITLES[p] ?? (seg[0] === 'models' && seg.length === 3 ? `${seg[1]}/${seg[2]}` : seg[0] === 'newsroom' ? 'Newsroom' : seg.length === 1 ? seg[0] : '')
+    document.title = !t || p === '/' ? 'affable' : `${t} · affable`
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <TooltipProvider delayDuration={150}>
       <BrowserRouter>
+        <PageTitle />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
