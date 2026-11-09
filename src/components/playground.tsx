@@ -74,7 +74,7 @@ export function Playground({ owner, name }: { owner: string; name: string }) {
           <p className="text-sm text-muted-foreground">Minimum confidence for a detection.</p>
         </div>
         <div className="flex justify-end">
-          <Button size="lg" disabled={!blob || busy} onClick={run} className="h-11 px-6 text-base">{busy ? <Loader2 className="animate-spin" /> : <Play />}Run <span className="font-mono text-xs opacity-60">(⌘↵)</span></Button>
+          <Button size="lg" disabled={!blob || busy} onClick={run} className="h-11 px-6 text-base">{busy ? <Loader2 className="animate-spin" /> : <Play />}Run <span className="font-mono text-xs opacity-60">({/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? '⌘↵' : 'Ctrl ↵'})</span></Button>
         </div>
       </section>
 

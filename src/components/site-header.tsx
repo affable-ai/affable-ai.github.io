@@ -4,6 +4,8 @@ import { Search } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+
 export function SiteHeader() {
   const { user } = useAuth()
   const nav = useNavigate()
@@ -26,7 +28,7 @@ export function SiteHeader() {
         <form onSubmit={submit} className="relative hidden max-w-md flex-1 md:block">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <input ref={ref} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') ref.current?.blur() }} placeholder="Search models" className="h-9 w-full rounded-md border border-input bg-input/40 pr-14 pl-9 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30" />
-          <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">⌘K</kbd>
+          <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
         </form>
         <nav className="flex items-center gap-2.5 sm:gap-6">
           <NavLink to="/discover" className={link}>Discover</NavLink>
